@@ -83,6 +83,7 @@ resource "aws_lb" "alb" {
   security_groups            = [aws_security_group.allow_ssh.id]
   subnets                    = data.aws_subnet_ids.selected.ids
   enable_deletion_protection = false
+  enable_http2               = true
   tags = {
     Name        = var.alb_name
     Environment = var.environment
