@@ -8,6 +8,17 @@ variable "instance_name" {
   }
 }
 
+variable "alb_name" {
+  description = "Value of the Name tag for the ALB"
+  type        = string
+
+  validation {
+    condition     = length(var.alb_name) <= 16
+    error_message = "The ALB name length must not be greater than 16 characters."
+  }
+}
+
+
 
 variable "environment" {
   description = "Value of the Enviroment tag for the EC2 instance (dev, hom, prd)"

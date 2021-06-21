@@ -13,10 +13,11 @@ provider "aws" {
 
 data "aws_vpc" "main" {
   filter {
-    name = "tag:Name"
+    name   = "tag:Name"
     values = ["default"]
   }
 }
+
 
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
@@ -24,11 +25,11 @@ resource "aws_security_group" "allow_ssh" {
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
-    description      = "SSH from all"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "TCP"
-    cidr_blocks      = ["0.0.0.0/0"]
+    description = "SSH from all"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -57,12 +58,33 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_instance" "ec2_gustavo" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
-  key_name = "my-key-pair"
+  ami             = data.aws_ami.ubuntu.id
+  instance_type   = "t2.micro"
+  key_name        = "my-key-pair"
   security_groups = [aws_security_group.allow_ssh.name]
   tags = {
     Name        = var.instance_name
+    Environment = var.environment
+  }
+}
+
+
+data "aws_subnet_ids" "selected" {
+  vpc_id = data.aws_vpc.main.id
+  tags = {
+    Name = "default*"
+  }
+}
+
+resource "aws_lb" "alb" {
+  name                       = "alb-test"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.allow_ssh.id]
+  subnets                    = data.aws_subnet_ids.selected.ids
+  enable_deletion_protection = false
+  tags = {
+    Name        = var.alb_name
     Environment = var.environment
   }
 }
