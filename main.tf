@@ -57,13 +57,25 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"]
 }
 
-resource "aws_instance" "ec2_gustavo" {
+resource "aws_instance" "ec2_source" {
   ami             = data.aws_ami.ubuntu.id
   instance_type   = "t2.micro"
   key_name        = "my-key-pair"
   security_groups = [aws_security_group.allow_ssh.name]
   tags = {
     Name        = var.instance_name
+    Environment = var.environment
+  }
+}
+
+
+resource "aws_instance" "ec2_target" {
+  ami             = data.aws_ami.ubuntu.id
+  instance_type   = "t2.micro"
+  key_name        = "my-key-pair"
+  security_groups = [aws_security_group.allow_ssh.name]
+  tags = {
+    Name        = var.target_instance_name
     Environment = var.environment
   }
 }
@@ -76,7 +88,19 @@ data "aws_subnet_ids" "selected" {
   }
 }
 
-resource "aws_lb" "alb" {
+
+
+# ALB
+
+resource "aws_alb_target_group" "test" {
+  name     = "example-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.main.id
+}
+
+
+resource "aws_alb" "alb" {
   name                       = "alb-test"
   internal                   = false
   load_balancer_type         = "application"
@@ -89,3 +113,22 @@ resource "aws_lb" "alb" {
     Environment = var.environment
   }
 }
+
+resource "aws_alb_listener" "listener_http" {
+  load_balancer_arn = "${aws_alb.alb.arn}"
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_alb_target_group.test.arn}"
+    type             = "forward"
+  }
+}
+
+resource "aws_alb_target_group_attachment" "register_targets" {
+  target_group_arn = aws_alb_target_group.test.arn
+  target_id        = aws_instance.ec2_target.id
+  port             = 80
+}
+
+
