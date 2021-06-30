@@ -18,6 +18,26 @@ resource "aws_sqs_queue" "this" {
   }
 }
 
+resource "aws_iam_role_policy" "this" {
+  name = "test_policy"
+  role = aws_iam_role.iam_for_lambda.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "sqs:*",
+          "lambda:*",
+          "logs:*"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
+
 resource "aws_iam_role" "iam_for_lambda" {
   name = "iam_for_lambda"
 
@@ -32,21 +52,18 @@ resource "aws_iam_role" "iam_for_lambda" {
       },
       "Effect": "Allow",
       "Sid": ""
-    },
-    {
-        "Sid": "",
-        "Effect": "Allow",
-        "Action": [
-            "sqs:SendMessage",
-            "sqs:ReceiveMessage"
-        ],
-        "Resource": [
-            "arn:aws:sqs:us-east-1:767088007873:test-sqs"
-        ]
     }
   ]
 }
 EOF
+}
+
+resource "aws_lambda_permission" "with_sqs" {
+  statement_id  = "AllowSQS"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.this.function_name
+  principal     = "sqs.amazonaws.com"
+  source_arn    = aws_sqs_queue.this.arn
 }
 
 
@@ -58,6 +75,10 @@ resource "aws_lambda_function" "this" {
 
   runtime = "go1.x"
 
+  depends_on = [
+    aws_cloudwatch_log_group.this,
+  ]
+
   tags = {
     Enviroment = var.environment
   }
@@ -66,4 +87,11 @@ resource "aws_lambda_function" "this" {
 resource "aws_lambda_event_source_mapping" "example" {
   event_source_arn = aws_sqs_queue.this.arn
   function_name    = aws_lambda_function.this.arn
+}
+
+
+# This manages the CloudWatch Log Group for the Lambda Function.
+resource "aws_cloudwatch_log_group" "this" {
+  name              = "/aws/lambda/lambda_function_name"
+  retention_in_days = 14
 }
