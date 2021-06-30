@@ -11,7 +11,7 @@ provider "aws" {
   region  = "us-east-1"
 }
 
-/* module "alb-ec2-test" {
+module "alb-ec2-test" {
   source = "./alb-ec2-grpc"
   providers = {
     aws = aws
@@ -21,8 +21,8 @@ provider "aws" {
   instance_name        = "ec2-name-2"
   environment          = "dev"
 }
-*/
 
+/* 
 module "sqs-lambda-test" {
   source = "./sqs-lambda"
 
@@ -30,3 +30,4 @@ module "sqs-lambda-test" {
   lambda_filename = "./resources/lambda.zip"
   environment     = "dev"
 }
+ */
