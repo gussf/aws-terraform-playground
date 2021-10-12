@@ -35,6 +35,8 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color
+        run: terraform plan 
         continue-on-error: true
 
+      - name: "Teardown AWS Credentials"
+        run: rm -rf ~/.aws
