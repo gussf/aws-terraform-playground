@@ -9,6 +9,8 @@ variable "container_cpu" {}
 variable "container_memory" {}
 variable "container_port" {}
 variable "host_port" {}
+variable "ecs_security_group" {}
+variable "alb_target_group_arn" {}
 variable "container_essential" {
     default = false
 }
