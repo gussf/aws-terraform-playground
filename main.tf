@@ -6,7 +6,7 @@ terraform {
   }
   backend "s3" {
     bucket = "gussf-terraform-playground"
-    key = "playground.tfstate"
+    key    = "playground.tfstate"
     region = "us-east-1"
   }
 }
@@ -31,7 +31,7 @@ module "vpc" {
   enable_vpn_gateway = false
 
   tags = {
-    Terraform = "true"
+    Terraform   = "true"
     Environment = "dev"
   }
 }
@@ -42,17 +42,17 @@ module "ecs_fargate_cluster" {
   cluster_name = "${var.prefix}-cluster"
 
   task_name = "${var.prefix}-task"
-  task_azs = module.vpc.private_subnets
+  task_azs  = module.vpc.private_subnets
 
   container_essential = true
-  container_name = "${var.prefix}-container"
-  container_image = "nginx"
-  container_cpu = 256
-  container_memory = 512
-  container_port = 8080
-  host_port = 8080
+  container_name      = "${var.prefix}-container"
+  container_image     = "nginx"
+  container_cpu       = 256
+  container_memory    = 512
+  container_port      = 8080
+  host_port           = 8080
 
-  service_name = "${var.prefix}-service"
+  service_name  = "${var.prefix}-service"
   desired_count = 1
 }
 
