@@ -12,5 +12,5 @@ variable "host_port" {}
 variable "ecs_security_group" {}
 variable "alb_target_group_arn" {}
 variable "container_essential" {
-    default = false
+  default = false
 }
