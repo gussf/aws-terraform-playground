@@ -19,12 +19,12 @@ resource "aws_ecs_cluster" "cluster" {
 # ECS TASK DEFINITION
 #################################################
 resource "aws_ecs_task_definition" "task" {
-  family = var.task_name
-  requires_compatibilities = [ "FARGATE" ]
-  network_mode = "awsvpc"
-  cpu = var.container_cpu
-  memory = var.container_memory
-  execution_role_arn = data.aws_iam_role.ecs_task_execution_role.arn
+  family                   = var.task_name
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = var.container_cpu
+  memory                   = var.container_memory
+  execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
   container_definitions = jsonencode([
     {
       name      = var.container_name
@@ -37,12 +37,12 @@ resource "aws_ecs_task_definition" "task" {
         }
       ]
       logConfiguration = {
-          logDriver = "awslogs",
-          options = {
-              awslogs-group = "/aws/ecs/awslogs-test"
-              awslogs-region = "us-east-1"
-              awslogs-stream-prefix = "awslogs-example"
-          }
+        logDriver = "awslogs",
+        options = {
+          awslogs-group         = "/aws/ecs/awslogs-test"
+          awslogs-region        = "us-east-1"
+          awslogs-stream-prefix = "awslogs-example"
+        }
       }
     }
   ])
@@ -59,15 +59,15 @@ resource "aws_ecs_service" "service" {
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
   network_configuration {
-    subnets = var.task_azs
-    security_groups = [ var.ecs_security_group ]
+    subnets         = var.task_azs
+    security_groups = [var.ecs_security_group]
   }
 
   load_balancer {
     target_group_arn = var.alb_target_group_arn
-    container_name = var.container_name
-    container_port = var.container_port
+    container_name   = var.container_name
+    container_port   = var.container_port
   }
-  
+
 }
 

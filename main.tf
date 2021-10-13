@@ -27,6 +27,26 @@ module "vpc" {
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 
+  manage_default_security_group = true
+  default_security_group_ingress = [
+    {
+      cidr_blocks = "0.0.0.0/0"
+      protocol    = -1
+      self        = false
+      from_port   = 0
+      to_port     = 0
+    }
+  ]
+  default_security_group_egress = [
+    {
+      cidr_blocks = "0.0.0.0/0"
+      protocol    = -1
+      self        = false
+      from_port   = 0
+      to_port     = 0
+    }
+  ]
+
   enable_nat_gateway = true
   enable_vpn_gateway = false
 
@@ -43,7 +63,7 @@ module "alb" {
   alb_tg_name = "${var.prefix}-alb-tg"
 
   alb_subnets   = module.vpc.public_subnets
-  alb_tg_port   = 80
+  alb_tg_port   = 8080
   alb_tg_vpc_ip = module.vpc.vpc_id
 
   alb_listen_port = 80
@@ -59,11 +79,11 @@ module "ecs_fargate_cluster" {
 
   container_essential = true
   container_name      = "${var.prefix}-container"
-  container_image     = "nginx"
+  container_image     = "gussf/teste-k8s"
   container_cpu       = 256
   container_memory    = 512
-  container_port      = 80
-  host_port           = 80
+  container_port      = 8080
+  host_port           = 8080
 
   service_name  = "${var.prefix}-service"
   desired_count = 1
