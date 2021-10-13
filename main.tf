@@ -25,7 +25,7 @@ module "vpc" {
 
   azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.4.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 
   enable_nat_gateway = true
   enable_vpn_gateway = false
@@ -34,6 +34,19 @@ module "vpc" {
     Terraform   = "true"
     Environment = "dev"
   }
+}
+
+module "alb" {
+  source = "./alb"
+
+  alb_name    = "${var.prefix}-alb"
+  alb_tg_name = "${var.prefix}-alb-tg"
+
+  alb_subnets   = module.vpc.public_subnets
+  alb_tg_port   = 80
+  alb_tg_vpc_ip = module.vpc.vpc_id
+
+  alb_listen_port = 80
 }
 
 module "ecs_fargate_cluster" {
@@ -49,11 +62,15 @@ module "ecs_fargate_cluster" {
   container_image     = "nginx"
   container_cpu       = 256
   container_memory    = 512
-  container_port      = 8080
-  host_port           = 8080
+  container_port      = 80
+  host_port           = 80
 
   service_name  = "${var.prefix}-service"
   desired_count = 1
+
+  alb_target_group_arn = module.alb.target_group_arn
+
+  ecs_security_group = module.vpc.default_security_group_id
 }
 
 

@@ -59,7 +59,14 @@ resource "aws_ecs_service" "service" {
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
   network_configuration {
-    subnets = [ var.task_azs[0] ]
+    subnets = var.task_azs
+    security_groups = [ var.ecs_security_group ]
+  }
+
+  load_balancer {
+    target_group_arn = var.alb_target_group_arn
+    container_name = var.container_name
+    container_port = var.container_port
   }
   
 }
