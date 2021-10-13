@@ -74,7 +74,7 @@ resource "aws_instance" "ec2_target" {
     Name        = var.target_instance_name
     Environment = var.environment
   }
-  
+
 }
 
 
@@ -111,12 +111,12 @@ resource "aws_alb" "alb" {
 }
 
 resource "aws_alb_listener" "listener_http" {
-  load_balancer_arn = "${aws_alb.alb.arn}"
+  load_balancer_arn = aws_alb.alb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = "${aws_alb_target_group.test.arn}"
+    target_group_arn = aws_alb_target_group.test.arn
     type             = "forward"
   }
 }

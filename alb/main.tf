@@ -6,10 +6,10 @@ resource "aws_alb" "alb" {
 }
 
 resource "aws_alb_target_group" "target_group" {
-  name     = var.alb_tg_name
-  port     = var.alb_tg_port
-  protocol = "HTTP"
-  vpc_id   = var.alb_tg_vpc_ip
+  name        = var.alb_tg_name
+  port        = var.alb_tg_port
+  protocol    = "HTTP"
+  vpc_id      = var.alb_tg_vpc_ip
   target_type = "ip"
 }
 
